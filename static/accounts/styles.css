@@ -1,0 +1,40 @@
+
+html,body{
+    background-image: url("new_background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+}
+
+.container, .row h-100.justify-content-center.align-items-center {
+    height: 100%;
+    min-height: 100%;
+}
+
+.btn-secondary{
+    padding: 20px;
+    background: #343434;
+}
+
+.empty-form{
+    background: #f9f9f9;
+    padding: 10px;
+    margin-left: 10vw;
+    border-radius: 25px;
+    opacity: 0.7;
+    font-weight: bold;
+    font-family: 'Josefin Sans' , sans-serif;
+}
+
+.row-full{
+    width: 100vw;
+    position: relative;
+    margin-left: -50vw;
+    height: 100px;
+    margin-top: 100px;
+    left: 0px;
+}
+
+
+

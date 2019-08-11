@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans|Oswald:500&display=swap" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="container h-100">
+    <div class = "row justify-content-center align-items-center">
+        <img src="{% static "accounts/recent_logo.png"%}" style="width: 300px;height: 300px">
+        <div class = "col-md-11 h-75" >
+            <form method="post" class = empty-form>
+                {% csrf_token %}
+                {{  form.as_p }}
+                <button type="submit" class="btn btn-secondary">Submit</button>
+            </form>
+        </div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'accounts/Content.html' %}
+{% block content %}
+   <div class="container h-100" style="background-color: #f9f9f9 ; opacity: .7">
+       <div class = "row justify-content-center align-items-center">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" , class="btn btn-secondary">Sumbit</button>
+            </form>
+       </div>
+   </div>
+{% endblock %}

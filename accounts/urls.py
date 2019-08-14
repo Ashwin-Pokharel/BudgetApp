@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^welcome', views.welcome , name='welcome'),
     url(r'^logout', views.logout_view , name = 'logout'),
     url(r'^expense_test',views.expense_form , name='expense_form'),
-    url(r'^total_expense_test', views.total_expense, name='total_expense')
+    url(r'^total_expense_test', views.total_expense, name='total_expense'),
+    url(r'^expenses' , views.expense_table , name='expense_table')
 ]

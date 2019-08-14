@@ -53,6 +53,7 @@ def welcome(request):
         return redirect('account:login')
 
 
+
 def expense_form(request):
     form = Expense_form(request.POST)
     if request.method == 'POST':
@@ -60,11 +61,17 @@ def expense_form(request):
             expense_temp_form = form.save(commit=False)
             expense_temp_form.user = request.user
             form.save()
-            return redirect('account:welcome')
+            return redirect('account:expense_table')
         else:
             return HttpResponse("form was not valid")
     else:
-        return render(request,'accounts/expenses_test_form.html',{'form':form})
+        return render(request,'accounts/login_page.html',{'form':form})
+
+
+def expense_table(request):
+    tables = Expense.objects.filter(user = request.user)
+    return render(request , 'accounts/tab_content.html' , {'tables':tables})
+
 
 def total_expense(request):
     expense_set = Expense.objects.filter(user=request.user)

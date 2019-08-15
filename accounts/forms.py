@@ -18,5 +18,15 @@ class Expense_form(ModelForm):
     class Meta:
         model = Expense
         exclude = ('user',)
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'})
+        }
 
+class Income_form(ModelForm):
+    class Meta:
+        model = Incomes
+        exclude = ('user',)
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'})
+        }
 

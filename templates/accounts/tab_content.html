@@ -2,37 +2,49 @@
 {% load static%}
 {% block content %}
    <div class="container-fluid h-100 w-80 pt-0" style="background-color: #f9f9f9">
-    <div class="row justify-content-center p-3" style="opacity: 1">
+    <div class="row justify-content-center pt-3 pb-0" style="opacity: 1">
         <img src="{% static "accounts/logo_navbar_burned.png"%}" height="100px" width="100px">
     </div>
-       <div class = "row m-3">
-       <a href="{% url 'account:expense_form' %}">
-            <button class="btn" style="width: 100px;height: 40px; background-color:#303942; font-family: 'Josefin Sans' , sans-serif; color: #f9f9f9; border-radius: 5px" >Add new</button>
-        </a>
-        <div class="card w-100" style="border-radius: 25px;">
-         <table class="table table-bordered">
-            <thead class = "thead-dark" style="color: #343434">
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Place</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Category</th>
-                    </tr>
-                </thead>
-            <tbody>
-                {% for item in tables %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.place }}</td>
-                        <td>{{ item.price }}</td>
-                        <td>{{ item.date }}</td>
-                        <td>{{ item.category }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-         </table>
+    <div class="row justify-content-center p-0 m-0">
+        <div class="jumbotron jumbotron-fluid pt-3 pb-0" style="background-color: #f9f9f9; border-color: #f9f9f9">
+                <h1 class="display-2" style="font-family: 'Lexend Deca', sans-serif;" >$ {{ total }}</h1>
         </div>
+    </div>
+       <div class = "row m-0 p-0">
+           {%  if page == 'expense' %}
+               <a href="{% url 'account:expense_form' %}">
+                   <button class="btn" style="width: 100px;height: 40px; background-color:#303942; font-family: 'Josefin Sans' , sans-serif; color: #f9f9f9; border-radius: 5px" >Add new</button>
+               </a>
+           {% endif %}
+           {% if page == 'income' %}
+                <a href="{% url 'account:income_form' %}">
+                    <button class="btn" style="width: 100px;height: 40px; background-color:#303942; font-family: 'Josefin Sans' , sans-serif; color: #f9f9f9;" >Add new</button>
+                </a>
+           {% endif %}
+           <div class="card w-100" style="border-radius: 25px;">
+             <table class="table table-bordered">
+                <thead class = "thead-dark" style="color: #343434">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Place</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Category</th>
+                        </tr>
+                </thead>
+                <tbody>
+                    {% for item in tables %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.place }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.category }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+             </table>
+            </div>
        </div>
    </div>
 {% endblock %}

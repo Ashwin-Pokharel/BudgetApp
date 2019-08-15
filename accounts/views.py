@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect
 from django.http import HttpResponse
-from .forms import loginForm , SignInForm , Expense_form
+from .forms import loginForm , SignInForm , Expense_form, Income_form
 from django.contrib.auth import authenticate , login , logout
 from .models import User , Expense , Incomes
 # Create your views here.
@@ -67,16 +67,35 @@ def expense_form(request):
     else:
         return render(request,'accounts/login_page.html',{'form':form})
 
+def income_form(request):
+    form = Income_form(request.POST)
+    if request.method == 'POST':
+        if form.is_valid():
+            income_temp_form = form.save(commit=False)
+            income_temp_form.user = request.user
+            form.save()
+            return redirect('account:income_table')
+        else:
+            return HttpResponse("form was not valid")
+    else:
+        return render(request , 'accounts/login_page.html',{'form':form})
 
 def expense_table(request):
     tables = Expense.objects.filter(user = request.user)
-    return render(request , 'accounts/tab_content.html' , {'tables':tables})
+    total = float(0)
+    for item in tables:
+        total += float(item.price)
+        total = round(total, 2)
+    page = 'expense'
+    return render(request , 'accounts/tab_content.html' , {'tables':tables , 'page':page , 'total':total})
 
-
-def total_expense(request):
-    expense_set = Expense.objects.filter(user=request.user)
-    total_expense_amount = 0
-    for expenses in expense_set:
-        total_expense_amount += expenses.price
-    return HttpResponse("the total expense amount is: " + str(total_expense_amount))
+def income_table(request):
+    tables = Incomes.objects.filter(user = request.user)
+    total = float(0)
+    for item in tables:
+        total += float(item.price)
+        total = round(total , 2)
+        print('the item does exist')
+    page = 'income'
+    return render(request,'accounts/tab_content.html', {'tables':tables , 'page':page , 'total':total})
 

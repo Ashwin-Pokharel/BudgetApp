@@ -4,6 +4,10 @@ from datetime import datetime
 
 # Create your models here.
 
+class categoryManager(models.Manager):
+    def get_by_natural_key(self , name):
+        return self.get(name=name)
+
 class Category(models.Model):
     MY_CHOICES = (
         ('I', 'Income'),
@@ -12,7 +16,11 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
     required = models.BooleanField(default=True)
     type = models.CharField(max_length=1 , choices=MY_CHOICES , null=True)
+    object = categoryManager()
     def __str__(self):
+        return self.name
+
+    def natural_key(self):
         return self.name
 
 class Incomes(models.Model):
@@ -26,6 +34,7 @@ class Incomes(models.Model):
     def __str__(self):
         final_string = "you spent" + str(self.price) + "at" + self.name
         return final_string
+
 
 class Expense(models.Model):
     name = models.CharField(max_length=100)

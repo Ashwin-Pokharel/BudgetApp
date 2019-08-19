@@ -1,15 +1,18 @@
 {% extends 'accounts/Content.html' %}
 {% load static%}
 {% block content %}
-   <div class="container-fluid h-100 w-80 pt-0" style="background-color: #f9f9f9">
-    <div class="row justify-content-center pt-3 pb-0" style="opacity: 1">
-        <img src="{% static "accounts/logo_navbar_burned.png"%}" height="100px" width="100px">
-    </div>
-    <div class="row justify-content-center p-0 m-0">
-        <div class="jumbotron jumbotron-fluid pt-3 pb-0" style="background-color: #f9f9f9; border-color: #f9f9f9">
-                <h1 class="display-2" style="font-family: 'Lexend Deca', sans-serif;" >$ {{ total }}</h1>
+   <div class="container-fluid h-100 w-80 pt-0" style="background-color: #f9f9f9; opacity: .8" id="other">
+        <div class="row justify-content-center pt-3 pb-0" style="opacity: 1">
+                <img src="{% static "accounts/logo_navbar_burned.png"%}" height="100px" width="100px">
         </div>
-    </div>
+        <div class="row justify-content-center p-0 m-0">
+            <div class="jumbotron jumbotron-fluid pt-3 pb-0" style="background-color: #f9f9f9; border-color: #f9f9f9">
+                <div id="big">
+                    <h1 id="big_number "class="display-2" style="font-family: 'Lexend Deca', sans-serif;" >$ {{ total }}</h1>
+                </div>
+            </div>
+
+        </div>
        <div class = "row m-0 p-0">
            {%  if page == 'expense' %}
                <a href="{% url 'account:expense_form' %}">
@@ -21,25 +24,25 @@
                     <button class="btn" style="width: 100px;height: 40px; background-color:#303942; font-family: 'Josefin Sans' , sans-serif; color: #f9f9f9;" >Add new</button>
                 </a>
            {% endif %}
-           <div class="card w-100" style="border-radius: 25px;">
-             <table class="table table-bordered">
-                <thead class = "thead-dark" style="color: #343434">
+           <div class="card w-100" style="border-radius: 0px;">
+             <table class="table" id="user_table">
+                <thead class = "thead-dark" style="color: #343434 ; font-family: 'Josefin Sans' , sans-serif ; border-radius: 0px">
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">Place</th>
                             <th scope="col">Price</th>
-                            <th scope="col">Date</th>
+                            <th scope="col">Date      <input type="month" id="user_input" name="datepicker" style="width:275px" onchange="userinput()"></th>
                             <th scope="col">Category</th>
                         </tr>
                 </thead>
-                <tbody>
+                <tbody id="user_table_body" style="font-family: 'Josefin Sans' , sans-serif">
                     {% for item in tables %}
                         <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.place }}</td>
-                            <td>{{ item.price }}</td>
-                            <td>{{ item.date }}</td>
-                            <td>{{ item.category }}</td>
+                            <td style="font-family: 'Josefin Sans' , sans-serif">{{ item.name }}</td>
+                            <td style="font-family: 'Josefin Sans' , sans-serif">{{ item.place }}</td>
+                            <td style="font-family: 'Josefin Sans' , sans-serif">{{ item.price }}</td>
+                            <td style="font-family: 'Josefin Sans' , sans-serif">{{ item.date }}</td>
+                            <td style="font-family: 'Josefin Sans' , sans-serif">{{ item.category }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -47,4 +50,69 @@
             </div>
        </div>
    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        var token = '{% csrf_token %}'
+       function userinput() {
+           const date = document.getElementById('user_input')
+           var month_year = date.value
+           console.log(month_year)
+            $.ajax({
+                headers: { "X-CSRFToken": '{{csrf_token}}'},
+                method: "POST",
+                {% if page == 'expense'%}
+                    url: 'expenses',
+                {% else %}
+                    url: 'incomes',
+                {% endif %}
+                data: {
+                    'month': month_year
+                },
+
+                dataType: 'json',
+                success: function (data) {
+                    $("#user_table_body").find("tr").remove()
+                    var table = document.getElementById("user_table")
+                    var total = 0
+                    var new_rows;
+                    for (item in data) {
+                        console.log(data[item]['fields']);
+                        string_date = convert_string_date(data[item]['fields']['date']);
+                        new_rows = "<tr><td>" + data[item]['fields']['name'] + "</td><td>" + data[item]['fields']['place'] + "</td><td>" + data[item]['fields']['price'] + "</td><td>" + string_date + "</td><td>" + data[item]['fields']['category'] + "</td></tr>"
+                        $('#user_table_body').append(new_rows);
+                        total += parseFloat(data[item]['fields']['price']);
+                    }
+                    var replaced_string = " <h1 id=\"second_big_number \"class=\"display-2\" style=\"font-family: 'Lexend Deca', sans-serif;\" >$ "+ total +"  </h1"
+                    $("#big ").replaceWith(replaced_string);
+                }
+            })}
+
+            function convert_string_date(date){ //changes string data to the one used in the template
+                given_date = date.split("-");
+                month = given_date[1];
+                a = {
+                    '01':"Jan",
+                    '02':"Feb",
+                    "03":"Mar",
+                    "04":"Apr",
+                    "05":"May",
+                    "06":"Jun",
+                    "07":"Jul",
+                    "08":"Aug",
+                    "09":"Sep",
+                    "10":"Oct",
+                    "11":"Nov",
+                    "12":"Dec"
+                }
+                string_month = a[month]
+                year = given_date[0];
+                day= given_date[2];
+                return string_month+". "+day+", "+year;
+
+
+            }
+
+           </script>
+
 {% endblock %}

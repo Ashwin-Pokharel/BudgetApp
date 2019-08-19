@@ -1,8 +1,12 @@
-from django.shortcuts import render , redirect
-from django.http import HttpResponse
+from django.shortcuts import render , redirect , render_to_response
+import json
+from datetime import datetime
+from django.http import HttpResponse, JsonResponse
 from .forms import loginForm , SignInForm , Expense_form, Income_form
 from django.contrib.auth import authenticate , login , logout
 from .models import User , Expense , Incomes
+from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
 # Create your views here.
 
 def home(request):
@@ -80,22 +84,59 @@ def income_form(request):
     else:
         return render(request , 'accounts/login_page.html',{'form':form})
 
+
 def expense_table(request):
-    tables = Expense.objects.filter(user = request.user)
-    total = float(0)
-    for item in tables:
-        total += float(item.price)
-        total = round(total, 2)
-    page = 'expense'
-    return render(request , 'accounts/tab_content.html' , {'tables':tables , 'page':page , 'total':total})
+        if request.method == 'GET':
+            today = datetime.now()
+            month = today.month
+            year = today.year
+            tables = Expense.objects.filter(user = request.user ,date__month= month , date__year=year)
+            total = float(0)
+            for item in tables:
+                total += float(item.price)
+                total = round(total, 2)
+            page = 'expense'
+            return render(request , 'accounts/tab_content.html' , {'tables':tables , 'page':page , 'total':total})
+        else:
+            if request.is_ajax():
+                form_value = request.POST.get('month')
+                form_value = form_value.split('-')
+                month = form_value[1]
+                year = form_value[0]
+                tables = Expense.objects.filter(user=request.user, date__month=month, date__year=year)
+                serialized_data = serializers.serialize('json',tables,indent=2,use_natural_foreign_keys=True, use_natural_primary_keys=True)
+                return HttpResponse(serialized_data,content_type='application/json')
 
 def income_table(request):
-    tables = Incomes.objects.filter(user = request.user)
-    total = float(0)
-    for item in tables:
-        total += float(item.price)
-        total = round(total , 2)
-        print('the item does exist')
-    page = 'income'
-    return render(request,'accounts/tab_content.html', {'tables':tables , 'page':page , 'total':total})
+    if request.method == 'GET':
+        today = datetime.now()
+        month = today.month
+        year = today.year
+        tables = Incomes.objects.filter(user = request.user , date__month = month , date__year=year)
+        total = float(0)
+        for item in tables:
+            total += float(item.price)
+            total = round(total , 2)
+            print('the item does exist')
+        page = 'income'
+        return render(request,'accounts/tab_content.html', {'tables':tables , 'page':page , 'total':total})
+    else:
+        if request.is_ajax():
+            form_value = request.POST.get('month')
+            form_value = form_value.split('-')
+            month = form_value[1]
+            year = form_value[0]
+            tables = Incomes.objects.filter(user=request.user, date__month=month, date__year=year)
+            serialized_data = serializers.serialize('json', tables, indent=2, use_natural_foreign_keys=True,
+                                                    use_natural_primary_keys=True)
+            return HttpResponse(serialized_data, content_type='application/json')
+
+
+
+
+
+
+
+
+
 

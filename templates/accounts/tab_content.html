@@ -74,7 +74,7 @@
                 success: function (data) {
                     $("#user_table_body").find("tr").remove()
                     var table = document.getElementById("user_table")
-                    var total = 0
+                    var total =  0
                     var new_rows;
                     for (item in data) {
                         console.log(data[item]['fields']);
@@ -83,8 +83,9 @@
                         $('#user_table_body').append(new_rows);
                         total += parseFloat(data[item]['fields']['price']);
                     }
-                    var replaced_string = " <h1 id=\"second_big_number \"class=\"display-2\" style=\"font-family: 'Lexend Deca', sans-serif;\" >$ "+ total +"  </h1"
-                    $("#big ").replaceWith(replaced_string);
+                    total = total.toFixed(2);
+                    var replaced_string = "<div id=\"big\"> <h1 id=\"big_number \"class=\"display-2\" style=\"font-family: 'Lexend Deca', sans-serif;\" >$ "+ total +"  </h1></div>"
+                    $("#big").replaceWith(replaced_string);
                 }
             })}
 

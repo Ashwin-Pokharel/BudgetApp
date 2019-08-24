@@ -33,7 +33,7 @@ def login_view(request):
             usera = authenticate(request, username = username , password = password)
             if usera is not None:
                 login(request, usera)
-                return render(request, 'accounts/Content.html')
+                return redirect('account:total')
             else:
                 return HttpResponse("the user did not exist")
         else:
@@ -50,11 +50,74 @@ def logout_view(request):
         return HttpResponse("user doesnt exist to logout")
     return render(request , "accounts/home.html")
 
+
 def welcome(request):
     if request.user.is_authenticated:
-        return render(request , 'accounts/Content.html')
+        return total(request)
     else:
         return redirect('account:login')
+
+def total(request):
+    if request.is_ajax():
+        form_value = request.POST.get('month')
+        form_value = form_value.split('-')
+        month = form_value[1]
+        year = form_value[0]
+        e_table = Expense.objects.filter(user=request.user, date__month=month, date__year=year)
+        i_table = Incomes.objects.filter(user=request.user, date__month=month, date__year=year)
+        e_total = float(0)  # total for the users expenses for the month
+        for item in e_table:
+            e_total += float(item.price)
+        e_total = round(e_total, 2)
+        i_total = float(0)  # total for the users incomes for the month
+        for item in i_table:
+            i_total += float(item.price)
+        i_total = round(i_total, 2)
+        ie_total = i_total - e_total
+        data = {
+            'total': ie_total
+        }
+        category_expense_totals = {}
+        for item in e_table:
+            if str(item.category) not in category_expense_totals:
+                category_expense_totals[str(item.category)] = float(item.price)
+            else:
+                category_expense_totals[str(item.category)] += float(item.price)
+
+        sent_json = json.dumps({'total':ie_total,'category_expense_table':category_expense_totals})
+        return HttpResponse(sent_json, content_type='application/JSON')
+
+    else:
+        today = datetime.today()
+        month = today.month
+        year = today.year
+        e_table = Expense.objects.filter(user = request.user ,date__month= month , date__year=year)
+        i_table = Incomes.objects.filter(user = request.user, date__month= month, date__year=year)
+        e_total = float(0) #total for the users expenses for the month
+        for item in e_table:
+            e_total += float(item.price)
+        e_total = round(e_total, 2)
+        i_total = float(0) #total for the users incomes for the month
+        for item in i_table:
+            i_total += float(item.price)
+        i_total = round(i_total, 2)
+        ie_total = i_total - e_total
+        ie_total = round(ie_total,2)
+        if (month % 10) == 0: #look over this code one more time
+            month_year = str(year)+"-"+str(month)
+        else:
+            month_year = str(year) + "-0" + str(month) # to set the value the month needs to be in YYYY-MM format
+
+        category_expense_totals = {}
+        for item in e_table:
+            if str(item.category) not in category_expense_totals:
+                category_expense_totals[str(item.category)] = float(item.price)
+            else:
+                category_expense_totals[str(item.category)] += float(item.price)
+        category_expense_totals = json.dumps(category_expense_totals)
+        print(category_expense_totals)
+        return render(request, 'accounts/total.html', {'total':ie_total , 'month_year':month_year , 'cat_expense_total':category_expense_totals})
+
 
 
 
@@ -94,7 +157,7 @@ def expense_table(request):
             total = float(0)
             for item in tables:
                 total += float(item.price)
-                total = round(total, 2)
+            total = round(total, 2)
             page = 'expense'
             return render(request , 'accounts/tab_content.html' , {'tables':tables , 'page':page , 'total':total})
         else:
@@ -116,8 +179,7 @@ def income_table(request):
         total = float(0)
         for item in tables:
             total += float(item.price)
-            total = round(total , 2)
-            print('the item does exist')
+        total = round(total , 2)
         page = 'income'
         return render(request,'accounts/tab_content.html', {'tables':tables , 'page':page , 'total':total})
     else:

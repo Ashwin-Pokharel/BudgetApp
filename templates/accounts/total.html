@@ -1,6 +1,121 @@
 {% extends 'accounts/Content.html' %}
+{% load static %}
 {% block content %}
     <div class="container-fluid h-100 w-80 pt-0" style="background-color: #f9f9f9; opacity: .8" id="other">
-
+        <div class="row justify-content-center pt-3">
+            <img src="{% static "accounts/logo_navbar_burned.png"%}" height="100px" width="100px">
+        </div>
+        <div class="row justify-content-center">
+            <div class="jumbotron jumbotron-fluid pt-3 pb-0 pr-5" style="background-color: #f9f9f9; border-color: #f9f9f9">
+                <div id="big">
+                    <h1 id="big_number "class="display-1" style="font-family: 'Lexend Deca', sans-serif;" >$ {{ total }}</h1>
+                </div>
+             </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="mdc-text-field mdc-text-field--outlined">
+              <input type= "month" class="mdc-text-field__input" id="month_value" value="{{ month_year }}" onchange="userinput()">
+              <div class="mdc-notched-outline">
+                <div class="mdc-notched-outline__leading"></div>
+                <div class="mdc-notched-outline__notch">
+                </div>
+                <div class="mdc-notched-outline__trailing"></div>
+              </div>
+            </div>
+        </div>
+        <div class="row h-50 w-50 pt-3" style="background: #f9f9f9">
+            <div class="col">
+                 <div id="chart-container" style="background: transparent !important; opacity: 1;  border: 2px solid black; border-radius: 5px ;"></div>
+            </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    var token = '{% csrf_token %}';
+    function userinput(){
+        const date = document.getElementById("month_value");
+        var month_year = date.value
+        console.log('worked boi')
+        $.ajax({
+            headers: { "X-CSRFToken": '{{csrf_token}}'},
+            method: "POST",
+            url: 'total',
+            data:{
+                'month' : month_year
+            },
+            dataType:'json',
+            success: function (data){
+                console.log(data);
+                console.log(data['total']);
+                console.log(data['category_expense_table'])
+                data_set = []
+                for(item in data['category_expense_table']){
+                    var temp_dict = {"label":item,"value":data['category_expense_table'][item]};
+                    data_set.push(temp_dict)
+                }
+            $("#chart-container").insertFusionCharts({
+              type: "pie2d",
+              width: "100%",
+              height: "100%",
+              dataFormat: "json",
+              dataSource: {
+                chart: {
+                  caption: "Expenses For This Month",
+                  plottooltext: "<b>$Value</b> Dollars spent on $label",
+                  showlegend: "1",
+                  showpercentvalues: "1",
+                  legendposition: "bottom",
+                  usedataplotcolorforlabels: "1",
+                  theme: "fusion",
+                  chartleftmargin:"10px",
+                  chartrightmargin:"10px",
+                },
+                data: data_set
+
+            }
+        });
+
+
+
+                value_to_replace = parseFloat(data['total']);
+                total = value_to_replace.toFixed(2)
+                replaced_string = "<div id=\"big\"> <h1 id=\"big_number \"class=\"display-2\" style=\"font-family: 'Lexend Deca', sans-serif;\" >$ "+ total +"  </h1></div>"
+                $('#big').replaceWith(replaced_string);
+
+
+            }
+        })
+    }
+    </script>
+    <script type="text/javascript">
+    console.log({{cat_expense_total|safe}});
+    var json = JSON.parse('{{ cat_expense_total|safe }}');
+    data_set = []
+    for(item in json){
+        var temp_dict = {"label":item,"value":json[item]};
+        data_set.push(temp_dict)
+    }
+    $("#chart-container").insertFusionCharts({
+      type: "pie2d",
+      width: "100%",
+      height: "100%",
+      dataFormat: "json",
+      dataSource: {
+        chart: {
+          caption: "Expenses For This Month",
+          plottooltext: "<b>$Value</b> Dollars spent on $label",
+          showlegend: "1",
+          showpercentvalues: "1",
+          legendposition: "bottom",
+          usedataplotcolorforlabels: "1",
+          theme: "fusion",
+          chartleftmargin:"10px",
+            chartrightmargin:"10px",
+        },
+        data: data_set
+      }
+});
+    </script>
 {% endblock %}

@@ -11,7 +11,6 @@
                     <h1 id="big_number "class="display-2" style="font-family: 'Lexend Deca', sans-serif;" >$ {{ total }}</h1>
                 </div>
             </div>
-
         </div>
        <div class = "row m-0 p-0">
            {%  if page == 'expense' %}
@@ -53,9 +52,9 @@
 {% endblock %}
 {% block scripts %}
     <script>
-        var token = '{% csrf_token %}'
+        var token = '{% csrf_token %}';
        function userinput() {
-           const date = document.getElementById('user_input')
+           const date = document.getElementById('user_input');
            var month_year = date.value
            console.log(month_year)
             $.ajax({
@@ -105,15 +104,11 @@
                     "10":"Oct",
                     "11":"Nov",
                     "12":"Dec"
-                }
-                string_month = a[month]
+                };
+                string_month = a[month];
                 year = given_date[0];
                 day= given_date[2];
                 return string_month+". "+day+", "+year;
-
-
             }
-
            </script>
-
 {% endblock %}
